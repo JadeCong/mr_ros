@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+    
+    <xacro:include filename="$(find mr_description)/urdf/mr.gazebo.xacro" />
+    
+    <xacro:macro name="link_inertial" params="radius length height mass *origin *inertia">
+        <inertial>
+            <mass value="${mass}" />
+            <xacro:insert_block name="origin" />
+            <xacro:insert_block name="inertia" />
+        </inertial>
+    </xacro:macro>
+    
+    <xacro:macro name="palm" params="prefix:=palm_ attach_to:='ee_link'" >
+        <!-- Inertia parameters -->
+        <xacro:property name="palm_mass" value="0.206168" />  <!-- This mass might be incorrect -->
+        <xacro:property name="palm_cog" value="0.0 -0.000034 0.014160" />
+        
+        <!-- Link height, length and radius used in model -->
+        <xacro:property name="palm_height" value="0.03453" />
+        <xacro:property name="palm_length" value="0.03453" />
+        <xacro:property name="palm_radius" value="0.0415" />  <!-- manually measured -->
+        
+        <!-- Links and joints for palm -->
+        <xacro:unless value="${attach_to == ''}">
+            <joint name="${attach_to}-palm_link_fixed_joint" type="fixed">
+                <parent link="${attach_to}" />
+                <child link = "${prefix}palm_link" />
+                <origin xyz="0.0 0.0 0" rpy="0.0 0.0 0.0" />
+            </joint>
+        </xacro:unless>
+        
+        <link name="${prefix}palm_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://mr_description/meshes/mr/visual/palm.dae" />
+                </geometry>
+                <material name="LightGrey">
+                    <color rgba="0.7 0.7 0.7 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://mr_description/meshes/mr/collision/palm.stl" />
+                </geometry>
+            </collision>
+            <xacro:link_inertial radius="${palm_radius}" length="${palm_length}" height="${palm_height}" mass="${palm_mass}">
+                <origin xyz="0.0 -0.000034 0.014160" rpy="0.0 0.0 0.0" />
+                <inertia ixx="0.000140" ixy="0.0" ixz="0.0"
+                         iyy="0.000141" iyz="0.0"
+                         izz="0.000168" />
+            </xacro:link_inertial>
+        </link>
+        
+        <joint name="${prefix}palm_link-tcp_fixed_joint" type="fixed">
+            <parent link="${prefix}palm_link" />
+            <child link = "${prefix}tcp" />
+            <origin xyz="0.0 0.0 0.03453" rpy="0.0 0.0 0.0" />
+        </joint>
+        
+        <link name="${prefix}tcp"/>
+        
+        <!-- Gazebo for Palm -->
+        <xacro:mr_gazebo prefix="${prefix}" />
+        
+    </xacro:macro>
+    
+</robot>

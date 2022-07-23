@@ -1,0 +1,13 @@
+<launch>
+    
+    <!-- Parameters configuration -->
+    <arg name="prefix" default="" doc="Prefix for the package." />
+    <arg name="joint_limited" default="true" doc="If true, limits joint specified ranges on all joints." />
+    <arg name="safety_limits" default="false" doc="If true, safety_pos_margin will be added to all joints." />
+    <arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface" doc="Hardware interface for mr transmission." />
+    
+    <!-- Load robot_description -->
+    <param name="robot_description" command="$(find xacro)/xacro '$(find mr_description)/urdf/mr_robot.urdf.xacro' 
+        prefix:=$(arg prefix) joint_limited:=$(arg joint_limited) safety_limits:=$(arg safety_limits) transmission_hw_interface:=$(arg transmission_hw_interface)" />
+
+</launch>

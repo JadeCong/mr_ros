@@ -1,0 +1,37 @@
+# Total planning attempts
+max_solutions: 10
+
+# Planning group properties
+arm_group_name: "mr"
+arm_root_frame: "rail_vertical_link"
+arm_tip_frame: "ee_link"
+ee_group_name: "palm"
+ee_root_frame: "palm_link"
+ee_tip_frame: "tcp"
+
+# Scene frame and model properties
+world_frame: "world"
+spawn_human: true  # Human model
+human_name: "human"
+human_mesh: "package://mr_description/meshes/human/collision/human.stl"
+human_reference_frame: "world"
+human_collision_frame: "human"
+human_dimensions: [0.78, 1.155, 1.268]  # [length, width, height]
+human_pose: [0.45, 0.27, 0.76, 0.0, 0.0, 0.0]  # human pose([x,y,z,r,p,y] or [xyz, xyzw]) relative to the world frame
+
+# Predefined pose targets for massaging
+arm_home_pose: "Home"
+massage_meta_skill: "single-screw-0.25-16"  # (area)-(skill)-(frequency)-(time)
+# massage_ready_pose: "Ready"
+# massage_contact_pose: "Contact"
+# massage_safe_pose: "Safe"
+massage_ready_pose: [0.15, 0.35, 0.52, 0, 0.707, 0, 0.707]
+massage_contact_pose: [0.25, 0.35, 0.72, 0, 0.707, 0, 0.707]
+massage_safe_pose: [0.15, 0.35, 0.72, 0, 0.707, 0, 0.707]
+
+# Massage metrics
+pose_target_min_dist: 0.0
+pose_target_max_dist: 0.005
+contact_human_min_dist: 0.0
+contact_human_max_dist: 0.005
+massage_metric_pose: [0.25, 0.35, 0.72, 0, 0.707, 0, 0.707]  # [x,y,z,r,p,y] or [xyz, xyzw]

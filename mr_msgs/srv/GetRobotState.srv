@@ -1,0 +1,9 @@
+# Get the robot state form mr controller
+
+string type = "simple"
+---
+float64[] joint_pose
+float64[] joint_velocity
+float64[] joint_acceleration
+float64[] joint_effort
+float64[] joint_current

@@ -1,0 +1,5 @@
+# Set the motor mode for different motor controllers.
+
+string mode = "pos"
+---
+bool success

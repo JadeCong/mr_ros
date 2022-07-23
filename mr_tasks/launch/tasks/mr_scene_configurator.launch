@@ -1,0 +1,14 @@
+<launch>
+    
+    <!-- Load mr scene with MTC's execution capability -->
+    <include file="$(find mr_moveit)/launch/demo.launch">
+        <arg name="use_rviz" value="false"/>
+    </include>
+    <param name="move_group/capabilities" value="move_group/ExecuteTaskSolutionCapability" />
+    
+    <!-- Run rviz with prepared config -->
+    <include file="$(find mr_moveit)/launch/moveit_rviz.launch">
+        <arg name="rviz_config" value="$(find mr_tasks)/config/massage_scene.rviz" />
+    </include>
+    
+</launch>

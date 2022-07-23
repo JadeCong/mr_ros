@@ -1,0 +1,9 @@
+<launch>
+    
+    <!-- Run MTC massage demo -->
+    <node name="mr_massage_demo" pkg="mr_tasks" type="massage_demo" output="screen">
+        <param name="execute" value="true" />
+        <rosparam command="load" file="$(find mr_tasks)/config/massage_demo_config.yaml" />
+    </node>
+    
+</launch>

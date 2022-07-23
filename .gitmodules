@@ -1,0 +1,6 @@
+[submodule "mr_dependencies/mtc_pour"]
+	path = mr_dependencies/mtc_pour
+	url = git@github.com:TAMS-Group/mtc_pour.git
+[submodule "mr_dependencies/moveit_task_constructor"]
+	path = mr_dependencies/moveit_task_constructor
+	url = git@github.com:ros-planning/moveit_task_constructor.git

@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="mr_robot">
+    
+    <!-- define default arguments -->
+    <xacro:arg name="prefix" default=""/>
+    <xacro:arg name="joint_limited" default="true"/>
+    <xacro:arg name="safety_limits" default="false"/>
+    <xacro:arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface"/>
+    <xacro:arg name="use_palm" default="true"/>
+    <xacro:arg name="xyz" default="0.0 0.0 0.0" />
+    <xacro:arg name="rpy" default="0.0 0.0 0.0" />
+    
+    <!-- include common stuff macro -->
+    <xacro:include filename="$(find mr_description)/urdf/common.gazebo.xacro" />
+    
+    <!-- include mr and palm macro -->
+    <xacro:include filename="$(find mr_description)/urdf/mr.urdf.xacro" />
+    <xacro:include filename="$(find mr_description)/urdf/palm.urdf.xacro" />
+    
+    <!-- construct mr and palm -->
+    <xacro:mr prefix="$(arg prefix)" joint_limited="$(arg joint_limited)" safety_limits="$(arg safety_limits)" transmission_hw_interface="$(arg transmission_hw_interface)" />
+    <xacro:if value="$(arg use_palm)">
+        <xacro:palm prefix="$(arg prefix)" attach_to="$(arg prefix)ee_link" />
+    </xacro:if>
+    
+    <!-- construct the scene -->
+    <link name="world" />
+    <joint name="$(arg prefix)world_joint" type="fixed">
+        <parent link="world" />
+        <child link = "$(arg prefix)rail_vertical_link" />
+        <origin xyz="$(arg xyz)" rpy="$(arg rpy)" />
+    </joint>
+    
+</robot>

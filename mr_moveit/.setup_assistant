@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: mr_description
+    relative_path: urdf/mr_robot.urdf.xacro
+    xacro_args: ""
+  SRDF:
+    relative_path: config/mr_robot.srdf
+  CONFIG:
+    author_name: Jade Cong
+    author_email: jade.cong@qq.com
+    generated_timestamp: 1658141970

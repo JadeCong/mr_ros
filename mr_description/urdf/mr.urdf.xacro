@@ -1,0 +1,372 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+    
+    <xacro:include filename="$(find mr_description)/urdf/mr.transmission.xacro" />
+    <xacro:include filename="$(find mr_description)/urdf/mr.gazebo.xacro" />
+    
+    <xacro:macro name="link_inertial" params="radius length height mass *origin *inertia">
+        <inertial>
+            <mass value="${mass}" />
+            <xacro:insert_block name="origin" />
+            <xacro:insert_block name="inertia" />
+        </inertial>
+    </xacro:macro>
+    
+    <xacro:macro name="mr" 
+        params="prefix:=mr_ joint_limited:=true
+        joint1_lower_limit:=0.0            joint1_upper_limit:=0.7934
+        joint2_lower_limit:=0.0            joint2_upper_limit:=0.14936
+        joint3_lower_limit:=${-pi}         joint3_upper_limit:=${pi*0.25}
+        joint4_lower_limit:=${-pi}         joint4_upper_limit:=${pi*0.25}
+        joint5_lower_limit:=${-pi*0.5}     joint5_upper_limit:=${pi*0.5}
+        safety_limits:=false safety_pos_margin:=0.01 safety_k_position:=20
+        transmission_hw_interface:=hardware_interface/PositionJointInterface">
+        
+        <!-- Inertia parameters -->
+        <xacro:property name="rail_vertical_mass" value="54.727661" />  <!-- This mass might be incorrect -->
+        <xacro:property name="rail_horizontal_mass" value="1.801061" />
+        <xacro:property name="mount_mass" value="0.364397" />
+        <xacro:property name="base_mass" value="0.156140" />
+        <xacro:property name="shoulder_mass" value="0.987376" />
+        <xacro:property name="upperarm_mass" value="0.862952" />
+        <xacro:property name="forearm_mass" value="0.714455" />
+        
+        <xacro:property name="rail_vertical_cog" value="0.172751 0.287763 0.558117" />
+        <xacro:property name="rail_horizontal_cog" value="-0.020063 0.215257 -0.022838" />
+        <xacro:property name="mount_cog" value="-0.000008 0.0 -0.009563" />
+        <xacro:property name="base_cog" value="0.001693 -0.000940 0.004017" />
+        <xacro:property name="shoulder_cog" value="0.016427 0.000038 -0.02561" />
+        <xacro:property name="upperarm_cog" value="0.010984 0.011237 0.024315" />
+        <xacro:property name="forearm_cog" value="0.006149 0.000012 0.026218" />
+        
+        <!-- Kinematic model -->
+        <!-- Properties from crcontrol.conf -->
+        
+        <!-- DH for mr:
+        a = [0.00000, -0.42500, -0.39225,  0.00000,  0.00000,  0.0000]
+        d = [0.089159,  0.00000,  0.00000,  0.10915,  0.09465,  0.0823]
+        alpha = [ 1.570796327, 0, 0, 1.570796327, -1.570796327, 0 ]
+        q_home_offset = [0, -1.570796327, 0, -1.570796327, 0, 0]
+        joint_direction = [-1, -1, 1, 1, 1, 1]
+        mass = [3.7000, 8.3930, 2.2750, 1.2190, 1.2190, 0.1879]
+        center_of_mass = [ [0, -0.02561, 0.00193], [0.2125, 0, 0.11336], [0.11993, 0.0, 0.0265], [0, -0.0018, 0.01634], [0, 0.0018,0.01634], [0, 0, -0.001159] ] -->
+        
+        <!-- Link height, length and radius used in model -->
+        <xacro:property name="rail_vertical_height" value="1.4" />
+        <xacro:property name="rail_horizontal_height" value="0.12" />
+        <xacro:property name="mount_height" value="0.02118" />
+        <xacro:property name="base_height" value="0.008" />
+        <xacro:property name="shoulder_height" value="0.10034" />
+        <xacro:property name="upperarm_height" value="0.04544" />
+        <xacro:property name="forearm_height" value="0.6341" />
+        
+        <xacro:property name="rail_vertical_length" value="0.56" />
+        <xacro:property name="rail_horizontal_length" value="0.4" />
+        <xacro:property name="mount_length" value="0.15114" />
+        <xacro:property name="base_length" value="0.088" />
+        <xacro:property name="shoulder_length" value="0.07074" />
+        <xacro:property name="upperarm_length" value="0.10007" />
+        <xacro:property name="forearm_length" value="0.6341" />
+        
+        <xacro:property name="rail_vertical_radius" value="0.3890" />  <!-- manually measured -->
+        <xacro:property name="rail_horizontal_radius" value="0.06" />
+        <xacro:property name="mount_radius" value="0.07557" />
+        <xacro:property name="base_radius" value="0.0622" />
+        <xacro:property name="shoulder_radius" value="0.041" />
+        <xacro:property name="upperarm_radius" value="0.041" />
+        <xacro:property name="elbow_radius" value="0.0375" />
+        <xacro:property name="forearm_radius" value="0.037" />
+        <xacro:property name="wrist_radius" value="0.0308" />
+        
+        <!-- Links and joints for mr -->
+        <link name="${prefix}rail_vertical_link" >
+            <visual>
+                <geometry>
+                    <mesh filename="package://mr_description/meshes/mr/visual/rail_vertical.dae" />
+                </geometry>
+                <material name="LightGrey">
+                    <color rgba="0.7 0.7 0.7 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://mr_description/meshes/mr/collision/rail_vertical.stl" />
+                </geometry>
+            </collision>
+            <xacro:link_inertial radius="${rail_vertical_radius}" length="${rail_vertical_length}" height="${rail_vertical_height}" mass="${rail_vertical_mass}">
+                <origin xyz="0.172751 0.287763 0.558117" rpy="0.0 0.0 0.0" />
+                <inertia ixx="36.516795" ixy="2.659442" ixz="3.545347"
+                        iyy="32.321986" iyz="8.844368"
+                        izz="10.701999" />
+            </xacro:link_inertial>
+        </link>
+        
+        <joint name="${prefix}joint1" type="prismatic">
+            <parent link="${prefix}rail_vertical_link" />
+            <child link = "${prefix}rail_horizontal_link" />
+            <origin xyz="0.01977 0.1295 0.35006" rpy="0.0 0.0 0.0" />
+            <axis xyz="0 0 1" />
+            <xacro:unless value="${joint_limited}">
+                <limit lower="0.0" upper="0.88" effort="200.0" velocity="0.314159"/>
+                <xacro:if value="${safety_limits}">
+                    <safety_controller soft_lower_limit="${0.0 + safety_pos_margin}" soft_upper_limit="${0.88 - safety_pos_margin}" k_position="${safety_k_position}" k_velocity="0.0"/>
+                </xacro:if>
+            </xacro:unless>
+            <xacro:if value="${joint_limited}">
+                <limit lower="${joint1_lower_limit}" upper="${joint1_upper_limit}" effort="200.0" velocity="0.314159"/>
+                <xacro:if value="${safety_limits}">
+                    <safety_controller soft_lower_limit="${joint1_lower_limit + safety_pos_margin}" soft_upper_limit="${joint1_upper_limit - safety_pos_margin}" k_position="${safety_k_position}" k_velocity="0.0"/>
+                </xacro:if>
+            </xacro:if>
+            <dynamics damping="0.0" friction="0.0"/>
+        </joint>
+        
+        <link name="${prefix}rail_horizontal_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://mr_description/meshes/mr/visual/rail_horizontal.dae" />
+                </geometry>
+                <material name="LightGrey">
+                    <color rgba="0.7 0.7 0.7 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://mr_description/meshes/mr/collision/rail_horizontal.stl" />
+                </geometry>
+            </collision>
+            <xacro:link_inertial radius="${rail_horizontal_radius}" length="${rail_horizontal_length}" height="${rail_horizontal_height}" mass="${rail_horizontal_mass}">
+                <origin xyz="-0.020063 0.215257 -0.022838" rpy="0.0 0.0 0.0" />
+                <inertia ixx="0.115403" ixy="-0.011407" ixz="0.000829"
+                        iyy="0.004044" iyz="-0.009148"
+                        izz="0.116412" />
+            </xacro:link_inertial>
+        </link>
+        
+        <joint name="${prefix}joint2" type="prismatic">
+            <parent link="${prefix}rail_horizontal_link" />
+            <child link = "${prefix}mount_link" />
+            <origin xyz="0.00026 0.22493 0.021" rpy="0.0 0.0 0.0" />
+            <axis xyz="0 -1 0" />
+            <xacro:unless value="${joint_limited}">
+                <limit lower="0.0" upper="0.14936" effort="200.0" velocity="0.314159"/>
+                <xacro:if value="${safety_limits}">
+                    <safety_controller soft_lower_limit="${0.0 + safety_pos_margin}" soft_upper_limit="${0.14936 - safety_pos_margin}" k_position="${safety_k_position}" k_velocity="0.0"/>
+                </xacro:if>
+            </xacro:unless>
+            <xacro:if value="${joint_limited}">
+                <limit lower="${joint2_lower_limit}" upper="${joint2_upper_limit}" effort="200.0" velocity="0.314159"/>
+                <xacro:if value="${safety_limits}">
+                    <safety_controller soft_lower_limit="${joint2_lower_limit + safety_pos_margin}" soft_upper_limit="${joint2_upper_limit - safety_pos_margin}" k_position="${safety_k_position}" k_velocity="0.0"/>
+                </xacro:if>
+            </xacro:if>
+            <dynamics damping="0.0" friction="0.0"/>
+        </joint>
+        
+        <link name="${prefix}mount_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://mr_description/meshes/mr/visual/mount.dae" />
+                </geometry>
+                <material name="LightGrey">
+                    <color rgba="0.7 0.7 0.7 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://mr_description/meshes/mr/collision/mount.stl" />
+                </geometry>
+            </collision>
+            <xacro:link_inertial radius="${mount_radius}" length="${mount_length}" height="${mount_height}" mass="${mount_mass}">
+                <origin xyz="-0.000008 0.0 -0.009563" rpy="0.0 0.0 0.0" />
+                <inertia ixx="0.000366" ixy="0.0" ixz="0.0"
+                        iyy="0.000228" iyz="0.0"
+                        izz="0.000498" />
+            </xacro:link_inertial>
+        </link>
+        
+        <joint name="${prefix}mount-base_fixed_joint" type="fixed">
+            <parent link="${prefix}mount_link" />
+            <child link = "${prefix}base_link" />
+            <origin xyz="0.00018 0.00045 0.0" rpy="0.0 0.0 0.0" />
+        </joint>
+        
+        <link name="${prefix}base_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://mr_description/meshes/mr/visual/base.dae" />
+                </geometry>
+                <material name="LightGrey">
+                    <color rgba="0.7 0.7 0.7 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://mr_description/meshes/mr/collision/base.stl" />
+                </geometry>
+            </collision>
+            <xacro:link_inertial radius="${base_radius}" length="${base_length}" height="${base_height}" mass="${base_mass}">
+                <origin xyz="0.001693 -0.000940 0.004017" rpy="0.0 0.0 0.0" />
+                <inertia ixx="0.000117" ixy="0.000002" ixz="0.000001"
+                        iyy="0.000103" iyz="0.0"
+                        izz="0.000213" />
+            </xacro:link_inertial>
+        </link>
+        
+        <joint name="${prefix}joint3" type="revolute">
+            <parent link="${prefix}base_link" />
+            <child link = "${prefix}shoulder_link" />
+            <origin xyz="0.00006 0.0 0.008" rpy="0.0 0.0 0.0" />
+            <axis xyz="0 0 1" />
+            <xacro:unless value="${joint_limited}">
+                <limit lower="${-1.0 * pi}" upper="${1.0 * pi}" effort="2.0" velocity="3.2"/>
+                <xacro:if value="${safety_limits}">
+                    <safety_controller soft_lower_limit="${-1.0 * pi + safety_pos_margin}" soft_upper_limit="${1.0 * pi - safety_pos_margin}" k_position="${safety_k_position}" k_velocity="0.0"/>
+                </xacro:if>
+            </xacro:unless>
+            <xacro:if value="${joint_limited}">
+                <limit lower="${joint3_lower_limit}" upper="${joint3_upper_limit}" effort="2.0" velocity="3.2"/>
+                <xacro:if value="${safety_limits}">
+                    <safety_controller soft_lower_limit="${joint3_lower_limit + safety_pos_margin}" soft_upper_limit="${joint3_upper_limit - safety_pos_margin}" k_position="${safety_k_position}" k_velocity="0.0"/>
+                </xacro:if>
+            </xacro:if>
+            <dynamics damping="0.0" friction="0.0"/>
+        </joint>
+        
+        <link name="${prefix}shoulder_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://mr_description/meshes/mr/visual/shoulder.dae" />
+                </geometry>
+                <material name="LightGrey">
+                    <color rgba="0.7 0.7 0.7 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://mr_description/meshes/mr/collision/shoulder.stl" />
+                </geometry>
+            </collision>
+            <xacro:link_inertial radius="${shoulder_radius}" length="${shoulder_length}" height="${shoulder_height}" mass="${shoulder_mass}">
+                <origin xyz="0.016427 0.000038 0.047037" rpy="0.0 0.0 0.0" />
+                <inertia ixx="0.003185" ixy="0.000001" ixz="0.001093"
+                        iyy="0.004224" iyz="0.000002"
+                        izz="0.002052" />
+            </xacro:link_inertial>
+        </link>
+        
+        <joint name="${prefix}joint4" type="revolute">
+            <parent link="${prefix}shoulder_link" />
+            <child link = "${prefix}upperarm_link" />
+            <origin xyz="0.07074 0.0 0.10034" rpy="0.0 0.0 0.0" />
+            <axis xyz="0 0 1" />
+            <xacro:unless value="${joint_limited}">
+                <limit lower="${-1.0 * pi}" upper="${1.0 * pi}" effort="2.0" velocity="3.2"/>
+                <xacro:if value="${safety_limits}">
+                    <safety_controller soft_lower_limit="${-1.0 * pi + safety_pos_margin}" soft_upper_limit="${1.0 * pi - safety_pos_margin}" k_position="${safety_k_position}" k_velocity="0.0"/>
+                </xacro:if>
+            </xacro:unless>
+            <xacro:if value="${joint_limited}">
+                <limit lower="${joint4_lower_limit}" upper="${joint4_upper_limit}" effort="2.0" velocity="3.2"/>
+                <xacro:if value="${safety_limits}">
+                    <safety_controller soft_lower_limit="${joint4_lower_limit + safety_pos_margin}" soft_upper_limit="${joint4_upper_limit - safety_pos_margin}" k_position="${safety_k_position}" k_velocity="0.0"/>
+                </xacro:if>
+            </xacro:if>
+            <dynamics damping="0.0" friction="0.0"/>
+        </joint>
+        
+        <link name="${prefix}upperarm_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://mr_description/meshes/mr/visual/upperarm.dae" />
+                </geometry>
+                <material name="LightGrey">
+                    <color rgba="0.7 0.7 0.7 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://mr_description/meshes/mr/collision/upperarm.stl" />
+                </geometry>
+            </collision>
+            <xacro:link_inertial radius="${upperarm_radius}" length="${upperarm_length}" height="${upperarm_height}" mass="${upperarm_mass}">
+                <origin xyz="0.010984 0.011237 0.024315" rpy="0.0 0.0 0.0" />
+                <inertia ixx="0.001935" ixy="0.000535" ixz="0.000441"
+                        iyy="0.002314" iyz="0.000446"
+                        izz="0.002068" />
+            </xacro:link_inertial>
+        </link>
+        
+        <joint name="${prefix}joint5" type="revolute">
+            <parent link="${prefix}upperarm_link" />
+            <child link = "${prefix}forearm_link" />
+            <origin xyz="0.10007 0.03682 0.04544" rpy="${pi/2.0} 0.0 0.0" />
+            <axis xyz="0 0 1" />
+            <xacro:unless value="${joint_limited}">
+                <limit lower="${-0.5 * pi}" upper="${0.5 * pi}" effort="2.0" velocity="3.2"/>
+                <xacro:if value="${safety_limits}">
+                    <safety_controller soft_lower_limit="${-0.5 * pi + safety_pos_margin}" soft_upper_limit="${0.5 * pi - safety_pos_margin}" k_position="${safety_k_position}" k_velocity="0.0"/>
+                </xacro:if>
+            </xacro:unless>
+            <xacro:if value="${joint_limited}">
+                <limit lower="${joint5_lower_limit}" upper="${joint5_upper_limit}" effort="2.0" velocity="3.2"/>
+                <xacro:if value="${safety_limits}">
+                    <safety_controller soft_lower_limit="${joint5_lower_limit + safety_pos_margin}" soft_upper_limit="${joint5_upper_limit - safety_pos_margin}" k_position="${safety_k_position}" k_velocity="0.0"/>
+                </xacro:if>
+            </xacro:if>
+            <dynamics damping="0.0" friction="0.0"/>
+        </joint>
+        
+        <link name="${prefix}forearm_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://mr_description/meshes/mr/visual/forearm.dae" />
+                </geometry>
+                <material name="LightGrey">
+                    <color rgba="0.7 0.7 0.7 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://mr_description/meshes/mr/collision/forearm.stl" />
+                </geometry>
+            </collision>
+            <xacro:link_inertial radius="${forearm_radius}" length="${forearm_length}" height="${forearm_height}" mass="${forearm_mass}">
+                <origin xyz="0.006149 0.000012 0.026218" rpy="0.0 0.0 0.0" />
+                <inertia ixx="0.001035" ixy="0.0" ixz="0.000164"
+                        iyy="0.001388" iyz="0.0"
+                        izz="0.000814" />
+            </xacro:link_inertial>
+        </link>
+        
+        <joint name="${prefix}forearm_link-ee_link_fixed_joint" type="fixed">
+            <parent link="${prefix}forearm_link" />
+            <child link = "${prefix}ee_link" />
+            <origin xyz="0.06341 0.0005 0.03597" rpy="${-pi/2.0} 0.0 ${-pi/2.0}" />
+        </joint>
+        
+        <link name="${prefix}ee_link"/>
+        
+        <!-- Transmission and gazebo for mr -->
+        <xacro:mr_transmission prefix="${prefix}" hw_interface="${transmission_hw_interface}" />
+        <xacro:mr_gazebo prefix="${prefix}" />
+        
+        <!-- ROS rail_vertical_link to mr 'Base' ROOT coordinate system transform -->
+        <link name="${prefix}base"/>
+        <joint name="${prefix}rail_vertical_link-base_fixed_joint" type="fixed">
+            <parent link="${prefix}rail_vertical_link"/>  <!-- base_link -->
+            <child link="${prefix}base"/> <!-- base ROOT -->
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        </joint>
+        
+        <!-- Frame coincident with all-zeros TCP on mr controller -->
+        <link name="${prefix}tool0"/>
+        <joint name="${prefix}ee_link-tool0_fixed_joint" type="fixed">
+            <parent link="${prefix}ee_link"/>
+            <child link="${prefix}tool0"/>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        </joint>
+    
+    </xacro:macro>
+
+</robot>

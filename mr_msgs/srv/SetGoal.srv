@@ -1,0 +1,5 @@
+# Set the goal pose for mr controller
+
+float64[] goal_pose
+---
+bool success
