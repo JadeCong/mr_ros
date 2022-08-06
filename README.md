@@ -62,5 +62,8 @@
 ## 12. Package Dependency: Package moveit_task_constructor/mtc_pour
 
 > 功能：
->> (1)moveit_task_constructor: 用以将多个子任务构造成一个复合任务，从而使MR机器人能一次性完成一整套按摩动作。
->> (2)mtc_pour: 利用moveit_task_constructor功能包实现向杯子中倒水的任务合集。
+>> (1)moveit_task_constructor：用以将多个子任务构造成一个复合任务，从而使MR机器人能一次性完成一整套按摩动作。<br>
+>>> 链接：https://github.com/ros-planning/moveit_task_constructor <br>
+>>
+>> (2)mtc_pour：利用moveit_task_constructor功能包实现向杯子中倒水的任务合集。<br>
+>>> 链接：https://github.com/TAMS-Group/mtc_pour
